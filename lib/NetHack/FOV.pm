@@ -129,12 +129,10 @@ Stefan O'Rear <stefanor@cox.net>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2008 Stefan O'Rear.  All rights reserved.  This
-program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+Copyright 2008 Stefan O'Rear.
 
-The full text of the license can be found in the LICENSE file included
-with this module.
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
 
 =cut
 
