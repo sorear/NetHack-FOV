@@ -2,10 +2,8 @@
 use inc::Module::Install;
 
 # Define metadata
-name           'TAEB';
-all_from       'lib//TAEB.pm';
-
-requires       '';
+name           'NetHack-FOV';
+all_from       'lib/NetHack/FOV.pm';
 
 build_requires 'Test::More';
 
