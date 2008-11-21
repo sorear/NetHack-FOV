@@ -4,20 +4,19 @@
 use strict;
 use warnings;
 
-use constant TESTS => 500;
+use constant TESTS => 50;
 
 BEGIN {
-    require Test::More;
     eval {
         require Inline;
         Inline->import(C => "DATA", CCFLAGS => "-W -Wall -Werror");
     };
 
     if ($@) {
-        Test::More->import(skip_all => "Inline::C failed to load");
+        print "1..0 # Inline::C failed to load\n";
         exit;
     } else{
-        Test::More->import(tests => TESTS());
+        print "1.." . TESTS() . "\n";
     }
 }
 
@@ -115,10 +114,10 @@ sub gen_test {
     }
 
     if (!$miss) {
-        ok(1);
+        print ("ok\n");
         return;
     } else {
-        ok(0);
+        print ("not ok\n");
     }
 
     for my $y (0 .. HEIGHT - 1) {
@@ -141,7 +140,7 @@ for (0 .. TESTS() - 1) { gen_test; }
 __END__
 __C__
 
-#line 90 "gen-testsuite-fov-nethack"
+#line 144 "002-fov-random.t"
 
 struct {
     int ux, uy;

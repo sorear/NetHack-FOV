@@ -5,8 +5,6 @@ use inc::Module::Install;
 name           'NetHack-FOV';
 all_from       'lib/NetHack/FOV.pm';
 
-build_requires 'Test::More';
-
 auto_install;
 WriteAll;
 
