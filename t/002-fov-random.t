@@ -21,7 +21,7 @@ BEGIN {
     }
 }
 
-use FOV::NetHack 'calculate_fov';
+use NetHack::FOV 'calculate_fov';
 
 use constant LAYERS => 7;
 use constant WIDTH  => 80;

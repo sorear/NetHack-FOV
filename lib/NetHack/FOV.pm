@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-package FOV::NetHack;
+package NetHack::FOV;
 
 use warnings;
 use strict;
@@ -75,11 +75,11 @@ sub calculate_fov {
 
 =head1 NAME
 
-FOV::NetHack - NetHack compatible field of view
+NetHack::FOV - NetHack compatible field of view
 
 =head1 SYNOPSIS
 
-  use FOV::NetHack 'calculate_fov';
+  use NetHack::FOV 'calculate_fov';
 
   my $AoA = calculate_fov($x, $y, \&transparent);
 
@@ -92,7 +92,7 @@ useful to bot writers.
 
 =head1 FUNCTION
 
-FOV::NetHack defines and allows import of a single function.
+NetHack::FOV defines and allows import of a single function.
 
 =over 4
 
