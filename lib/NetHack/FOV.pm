@@ -6,6 +6,7 @@ use strict;
 
 use Exporter;
 
+our $VERSION = 0.01;
 our @EXPORT_OK = qw(calculate_fov);
 our @ISA = qw(Exporter);
 
