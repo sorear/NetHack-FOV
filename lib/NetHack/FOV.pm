@@ -10,6 +10,128 @@ our $VERSION = 0.01;
 our @EXPORT_OK = qw(calculate_fov);
 our @ISA = qw(Exporter);
 
+sub _clear {
+    my ($self, $x, $y) = @_;
+
+    return $self->{cbi}->($x + $self->{x}, $y + $self->{y});
+}
+
+sub _see {
+    my ($self, $x, $y) = @_;
+
+    return $self->{cbo}->($x + $self->{x}, $y + $self->{y});
+}
+
+sub _Q_path {
+    my ($self, $x, $y) = @_;
+
+    my ($px, $py) = (0,0);
+
+    my $flip = abs($x) > abs($y);
+
+    my ($rmaj, $rmin) = $flip ? (\$px,\$py) : (\$py,\$px);
+    my ($dmaj, $dmin) = $flip ? ( $x , $y ) : ( $y , $x );
+
+    my $fmin = -abs($dmaj);
+
+    for (2 .. abs($dmaj)) {
+        $fmin += 2*abs($dmin);
+        if ($fmin > 0) { $fmin -= 2*abs($dmaj); $$rmin += ($dmin <=> 0); }
+        $$rmaj += ($dmaj <=> 0);
+        if (!$self->_clear($px, $py)) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+sub _quadrant {
+    my ($self, $hs, $row, $left, $right_mark) = @_;
+
+    my ($right, $right_edge);
+
+
+    while ($left <= $right_mark) {
+        print "in quadrant, $hs $row $left $right_mark\n";
+        $right_edge = $left;
+        my $left_clear = $self->_clear($hs*$left, $row);
+        while ($self->_clear($hs*$right_edge, $row) == $left_clear &&
+                ($left_clear || $right_edge < $right_mark + 1))
+            { $right_edge++ }
+        $right_edge--;
+        if ($left_clear) { $right_edge++; }
+
+        print "in quadrant2, $hs $row $left $right_mark $right_edge\n";
+
+        if (!$left_clear) {
+            if ($right_edge > $right_mark) {
+                $right_edge = $self->_clear($hs*$right_mark,
+                    $row - ($row <=> 0)) ? $right_mark + 1 : $right_mark;
+            }
+
+            for (my $i = $left; $i <= $right_edge; $i++) {
+                $self->_see($hs*$i, $row);
+            }
+            $left = $right_edge + 1;
+            next;
+        }
+        #print "in quadrant3, $hs $row $left $right_mark\n";
+
+        if ($left != 0) {
+            for (; $left <= $right_edge; $left++) {
+                last if $self->_Q_path($hs*$left, $row);
+            }
+
+            if ($left >= $right_edge) {
+                $left = $right_edge;
+                next;
+            }
+        }
+        #print "in quadrant4, $hs $row $left $right_mark\n";
+
+        if ($right_mark < $right_edge) {
+            for ($right = $right_mark; $right <= $right_edge; $right++) {
+                last if !$self->_Q_path($hs*$right, $row);
+            }
+            --$right;
+        }
+        else { $right = $right_edge; }
+        #print "in quadrant5, $hs $row $left $right_mark\n";
+        if ($left <= $right) {
+            if ($left == $right && $left == 0 && !$self->_clear($hs,$row)) {
+                $right = 1;
+            }
+
+            for (my $i = $left; $i <= $right; $i++) {
+                $self->_see($hs*$i,$row);
+            }
+
+            $self->_quadrant($hs, $row + ($row <=> 0),$left,$right);
+            $left = $right + 1;
+        }
+        #print "in quadrant6, $hs $row $left $right_mark\n";
+    }
+}
+
+sub _trace {
+    my $self = shift;
+
+    my ($xl, $xr) = (0, 0);
+
+    $self->_see(0,0);
+
+    do { $self->_see(--$xl,0) } while $self->_clear($xl,0);
+    do { $self->_see(++$xr,0) } while $self->_clear($xr,0);
+
+    print "$xl $xr\n";
+
+    $self->_quadrant(-1,-1,0,-$xl);
+    $self->_quadrant(+1,-1,0,$xr);
+    $self->_quadrant(-1,+1,0,-$xl);
+    $self->_quadrant(+1,+1,0,$xr);
+}
+
 # not handled: swimming, phasing
 # possibly buggy: everything
 sub calculate_fov {
@@ -17,57 +139,12 @@ sub calculate_fov {
 
     my @visible;
 
-    $cbo ||= sub { my ($x, $y) = @_;
+    my $self = bless { x => $startx, y => $starty, cbi => $cb, cbo => $cbo };
+
+    $self->{cbo} ||= sub { my ($x, $y) = @_;
         $visible[$x][$y] = 1 unless $x < 0 || $y < 0; };
 
-    $cbo->($startx, $starty);
-
-    for my $octant (0 .. 7) {
-        my $maj_dx = (1, 0, 0, -1, -1, 0, 0, 1)[$octant];
-        my $maj_dy = (0, -1, -1, 0, 0, 1, 1, 0)[$octant];
-        my $min_dx = (0, 1, -1, 0, 0, -1, 1, 0)[$octant];
-        my $min_dy = (-1, 0, 0, -1, 1, 0, 0, 1)[$octant];
-
-        my $shadowcaster;
-        $shadowcaster = sub {
-            my ($dist, $min_slope, $max_slope) = @_;
-
-            my $min_minor = int($min_slope * $dist + 0.5);
-            my $max_minor = int($max_slope * $dist + 0.5);
-
-            my $last_clear = 0;
-            my $window_start = $min_minor;
-
-            for my $minor ($min_minor .. $max_minor) {
-                my $start = ($minor - 0.5) / $dist;
-                my $end   = ($minor + 0.5) / $dist;
-
-                $start = $min_slope if $start < $min_slope;
-                $end   = $max_slope if $end   > $max_slope;
-
-                my $x = $startx + $maj_dx * $dist + $min_dx * $minor;
-                my $y = $starty + $maj_dy * $dist + $min_dy * $minor;
-
-                $cbo->($x,$y);
-
-                if ($cb->($x,$y) xor $last_clear) {
-                    if ($last_clear) {
-                        $last_clear = 0;
-                        $shadowcaster->($dist+1, $window_start, $start);
-                    } else {
-                        $last_clear = 1;
-                        $window_start = $start;
-                    }
-                }
-            }
-
-            if ($last_clear) {
-                $shadowcaster->($dist+1, $window_start, $max_slope)
-            }
-        };
-
-        $shadowcaster->(1, 0, 1);
-    }
+    $self->_trace();
 
     return \@visible;
 }
