@@ -57,7 +57,7 @@ sub _quadrant {
         $right_edge = $left;
         my $left_clear = $self->_clear($hs*$left, $row);
         while ($self->_clear($hs*$right_edge, $row) == $left_clear &&
-                ($left_clear || $right_edge < $right_mark + 1))
+                ($left_clear || $right_edge <= $right_mark + 1))
             { $right_edge++ }
         $right_edge--;
         if ($left_clear) { $right_edge++; }
