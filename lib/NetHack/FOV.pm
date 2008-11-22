@@ -53,7 +53,7 @@ sub _quadrant {
 
 
     while ($left <= $right_mark) {
-        print "in quadrant, $hs $row $left $right_mark\n";
+        #print "in quadrant, $hs $row $left $right_mark\n";
         $right_edge = $left;
         my $left_clear = $self->_clear($hs*$left, $row);
         while ($self->_clear($hs*$right_edge, $row) == $left_clear &&
@@ -62,7 +62,7 @@ sub _quadrant {
         $right_edge--;
         if ($left_clear) { $right_edge++; }
 
-        print "in quadrant2, $hs $row $left $right_mark $right_edge\n";
+        #print "in quadrant2, $hs $row $left $right_mark $right_edge\n";
 
         if (!$left_clear) {
             if ($right_edge > $right_mark) {
@@ -121,10 +121,13 @@ sub _trace {
 
     $self->_see(0,0);
 
+    #for my $i (-2 .. 2) { print ($self->_clear($i,0) ? "1" : "0"); }
+    #print "\n";
+
     do { $self->_see(--$xl,0) } while $self->_clear($xl,0);
     do { $self->_see(++$xr,0) } while $self->_clear($xr,0);
 
-    print "$xl $xr\n";
+    #print "$xl $xr\n";
 
     $self->_quadrant(-1,-1,0,-$xl);
     $self->_quadrant(+1,-1,0,$xr);
