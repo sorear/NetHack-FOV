@@ -90,6 +90,8 @@ sub gen_test {
 
     my $map = gen_map $density, $structure;
 
+    for my $y (0 .. HEIGHT - 1) { $map->[$y][0] = 1; }
+
     for my $y (0 .. HEIGHT - 1) {
         for my $x (0 .. WIDTH - 1) {
             set_blocked($x, $y, $map->[$y][$x]);
@@ -101,7 +103,7 @@ sub gen_test {
     vision_recalc(1);
 
     my $our_vis = calculate_fov $playerx, $playery,
-        sub{ my ($x,$y) = @_; $x > 0 && $y > 0 && $x < WIDTH &&
+        sub{ my ($x,$y) = @_; $x >= 0 && $y >= 0 && $x < WIDTH &&
              $y < HEIGHT && !$map->[$y][$x] };
 
     my $miss;

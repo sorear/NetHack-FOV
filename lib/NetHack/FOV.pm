@@ -36,7 +36,7 @@ sub _Q_path {
 
     for (2 .. abs($dmaj)) {
         $fmin += 2*abs($dmin);
-        if ($fmin > 0) { $fmin -= 2*abs($dmaj); $$rmin += ($dmin <=> 0); }
+        if ($fmin >= 0) { $fmin -= 2*abs($dmaj); $$rmin += ($dmin <=> 0); }
         $$rmaj += ($dmaj <=> 0);
         if (!$self->_clear($px, $py)) {
             return 0;
