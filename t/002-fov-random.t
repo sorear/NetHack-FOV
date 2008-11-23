@@ -10,6 +10,7 @@ use constant TESTS => 50;
 
 BEGIN {
     require Test::More;
+    Test::More::diag("Compiling reference NetHack code, this may take a few moments...");
     eval {
         require Test::NetHack::FOV::Real;
     };
