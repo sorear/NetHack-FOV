@@ -12,6 +12,11 @@ use Inline C => "DATA";
 use constant WIDTH  => 80;
 use constant HEIGHT => 21;
 
+use Exporter;
+
+our @ISA = qw(Exporter);
+our @EXPORT_OK = qw(calculate_fov);
+
 INIT { vision_init(); }
 
 sub calculate_fov {

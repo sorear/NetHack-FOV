@@ -4,6 +4,11 @@ package Test::NetHack::FOV::Compare;
 use strict;
 use warnings;
 
+use Exporter;
+
+our @ISA = qw(Exporter);
+our @EXPORT_OK = qw(compare);
+
 use constant WIDTH  => 80;
 use constant HEIGHT => 21;
 
