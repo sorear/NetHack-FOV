@@ -51,9 +51,11 @@ sub _quadrant {
 
     my ($right, $right_edge);
 
+    my $rail = ($hs == 1) ? 79 - $self->{x} : $self->{x};
+    # Why does this have to be irregular
 
     while ($left <= $right_mark) {
-        #print "in quadrant, $hs $row $left $right_mark\n";
+        #print "in quadrant, $rail  $hs $row $left $right_mark\n";
         $right_edge = $left;
         my $left_clear = $self->_clear($hs*$left, $row);
         while ($self->_clear($hs*$right_edge, $row) == $left_clear &&
@@ -61,6 +63,10 @@ sub _quadrant {
             { $right_edge++ }
         $right_edge--;
         if ($left_clear) { $right_edge++; }
+
+        if ($right_edge >= $rail) {
+            $right_edge = $rail; # Yuck
+        }
 
         #print "in quadrant2, $hs $row $left $right_mark $right_edge\n";
 
@@ -83,6 +89,15 @@ sub _quadrant {
                 last if $self->_Q_path($hs*$left, $row);
             }
 
+            if ($left >= $rail) {
+                # Double yuck
+                if ($left == $rail) {
+                    $self->_see($left*$hs, $row);
+                }
+
+                return;
+            }
+
             if ($left >= $right_edge) {
                 $left = $right_edge;
                 next;
@@ -99,9 +114,12 @@ sub _quadrant {
         else { $right = $right_edge; }
         #print "in quadrant5, $hs $row $left $right_mark\n";
         if ($left <= $right) {
-            if ($left == $right && $left == 0 && !$self->_clear($hs,$row)) {
+            if ($left == $right && $left == 0 && !$self->_clear($hs,$row) &&
+                   ($left != $rail)) {
                 $right = 1;
             }
+
+            if ($right > $rail) { $right = $rail }
 
             for (my $i = $left; $i <= $right; $i++) {
                 $self->_see($hs*$i,$row);
@@ -126,6 +144,10 @@ sub _trace {
 
     do { $self->_see(--$xl,0) } while $self->_clear($xl,0);
     do { $self->_see(++$xr,0) } while $self->_clear($xr,0);
+
+    # Triple yuck
+    $xr-- if $xr + $self->{x} == 80;
+    $xl++ if $xl + $self->{x} < 0;
 
     #print "$xl $xr\n";
 
