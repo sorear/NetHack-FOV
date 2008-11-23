@@ -214,7 +214,10 @@ Obviously, calculate_fov will hang if passed a map which has lines of
 sight with infinite length.  Also, if the visible part of the map
 extends beyond the doubly non-negative quadrant, and you are using
 the array of arrays return method, only the part which lies within
-said quadrant will be returned.
+said quadrant will be returned.  Due to unusual boundary conditions
+of the NetHack FOV algorithm, this module will misbehave if passed
+data outside the range of 1 to 79 inclusive in the horizontal
+dimension; no such restriction exists vertically.
 
 You may be wondering why the callbacks exist at all and calculate_fov
 doesn't just use arrays of arrays both ways.  The answer is asymptotic
