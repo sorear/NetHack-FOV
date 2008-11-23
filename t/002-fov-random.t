@@ -30,8 +30,6 @@ use constant LAYERS => 7;
 use constant WIDTH  => 80;
 use constant HEIGHT => 21;
 
-srand(1);
-
 sub gen_test {
     my $playerx   = int (rand() * (WIDTH));
     my $playery   = int (rand() * (HEIGHT));
